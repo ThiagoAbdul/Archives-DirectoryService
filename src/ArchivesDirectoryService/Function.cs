@@ -30,5 +30,6 @@ public class Function
 public record Response(string Hello);
 
 [JsonSerializable(typeof(APIGatewayHttpApiV2ProxyRequest))]
+[JsonSerializable(typeof(APIGatewayHttpApiV2ProxyResponse))]
 [JsonSerializable(typeof(Response))]
 public partial class LambdaFunctionJsonSerializerContext : JsonSerializerContext {}
