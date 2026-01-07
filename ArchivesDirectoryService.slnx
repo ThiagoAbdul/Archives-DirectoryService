@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/ArchivesDirectoryService/ArchivesDirectoryService.csproj" />
+  <Project Path="test/ArchivesDirectoryService.Tests/ArchivesDirectoryService.Tests.csproj" />
+</Solution>
