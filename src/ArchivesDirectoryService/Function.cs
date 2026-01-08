@@ -33,10 +33,15 @@ public class Function
                 StatusCode = 401,
             };
         }
+        string? parentId = null;
+        bool hasFolder = input.QueryStringParameters?.TryGetValue("parent", out parentId) ?? false;
 
-        bool hasFolder = input.QueryStringParameters.TryGetValue("parent", out string? parentId);
+        context.Logger.LogInformation("sub {}. parent {}", userId, parentId);
 
         var archives = await repository.GetArchivesAsync(userId!, parentId);
+
+        context.Logger.LogInformation("buscou os arquivos");
+
 
         var content = archives.Select(a => new ArchiveResponse(a));
 

@@ -23,8 +23,8 @@ public class ArchiveRepository
     public Task<List<Archive>> GetArchivesAsync(string userId, string? parent)
     {
         ScanCondition filter = parent is null ? 
-            new("parent", ScanOperator.IsNull) 
-            : new("parent", ScanOperator.Equal, parent);
+            new("Parent", ScanOperator.IsNull) 
+            : new("Parent", ScanOperator.Equal, parent);
         var config = new QueryConfig
         {
             QueryFilter = [ filter ] 
