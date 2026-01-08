@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
+using ArchivesDirectoryService.DTOs;
 using System.Linq.Expressions;
 
 namespace ArchivesDirectoryService;
@@ -30,5 +31,11 @@ public class ArchiveRepository
             QueryFilter = [ filter ] 
         };
          return _context.QueryAsync<Archive>(userId, config).GetRemainingAsync();
+    }
+
+    public async Task<string> CreateFolderAsync(Archive archive)
+    {
+        await _context.SaveAsync(archive);
+        return archive.ArchiveId;
     }
 }
