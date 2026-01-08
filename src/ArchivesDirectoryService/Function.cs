@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.RuntimeSupport;
@@ -9,27 +10,66 @@ namespace ArchivesDirectoryService;
 
 public class Function
 {
+
+    static ArchiveRepository repository = new();
+
     private static async Task Main()
     {
-        Func<APIGatewayHttpApiV2ProxyRequest, ILambdaContext, APIGatewayHttpApiV2ProxyResponse> handler = FunctionHandler;
+        var handler = FunctionHandler;
         await LambdaBootstrapBuilder.Create(handler, new SourceGeneratorLambdaJsonSerializer<LambdaFunctionJsonSerializerContext>())
             .Build()
             .RunAsync();
     }
 
-    public static APIGatewayHttpApiV2ProxyResponse FunctionHandler(APIGatewayHttpApiV2ProxyRequest input, ILambdaContext context)
+    public static async Task<APIGatewayHttpApiV2ProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest input, ILambdaContext context)
     {
+
+        bool authenticated = input.RequestContext.Authorizer.Jwt.Claims.TryGetValue("sub", out var userId);
+
+        if (!authenticated)
+        {
+            return new APIGatewayHttpApiV2ProxyResponse
+            {
+                StatusCode = 401,
+            };
+        }
+
+        bool hasFolder = input.QueryStringParameters.TryGetValue("parent", out string? parentId);
+
+        var archives = await repository.GetArchivesAsync(userId!, parentId);
+
+        var content = archives.Select(a => new ArchiveResponse(a));
+
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = LambdaFunctionJsonSerializerContext.Default
+        };
+
+        var body = JsonSerializer.Serialize(content, options)!;
+
+
         return new APIGatewayHttpApiV2ProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(new Response("World"), LambdaFunctionJsonSerializerContext.Default.Response)
+            Body = body
         };
     }
 }
 
-public record Response(string Hello);
+public class ArchiveResponse(Archive archive)
+{
+    public string UserId { get; } = archive.UserId;
+    public string ArchiveId { get; } = archive.ArchiveId;
+    public string? ContentUrl { get; } = archive.ContentUrl;
+    public string Name { get; } = archive.Name;
+    public string? Parent { get; } = archive.Parent;
+    public ArchiveType Type { get; } = archive.Type;
+    public bool Favorite { get; } = archive.Favorite;
+}
 
 [JsonSerializable(typeof(APIGatewayHttpApiV2ProxyRequest))]
 [JsonSerializable(typeof(APIGatewayHttpApiV2ProxyResponse))]
-[JsonSerializable(typeof(Response))]
+[JsonSerializable(typeof(Archive))]
+[JsonSerializable(typeof(ArchiveResponse))]
+[JsonSerializable(typeof(IEnumerable<ArchiveResponse>))]
 public partial class LambdaFunctionJsonSerializerContext : JsonSerializerContext {}
