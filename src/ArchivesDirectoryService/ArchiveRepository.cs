@@ -33,9 +33,14 @@ public class ArchiveRepository
          return _context.QueryAsync<Archive>(userId, config).GetRemainingAsync();
     }
 
-    public async Task<string> CreateFolderAsync(Archive archive)
+    public async Task<string> CreateArchiveAsync(Archive archive)
     {
         await _context.SaveAsync(archive);
         return archive.ArchiveId;
+    }
+
+    public Task<Archive?> GetArchiveAsync(string userId, string archiveId)
+    {
+        return _context.LoadAsync<Archive?>(userId, archiveId);
     }
 }
