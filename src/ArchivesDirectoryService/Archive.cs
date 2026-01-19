@@ -31,5 +31,6 @@ public enum ArchiveType
 {
     Folder,
     Picture,
-    Video
+    Video,
+    Zip
 }
