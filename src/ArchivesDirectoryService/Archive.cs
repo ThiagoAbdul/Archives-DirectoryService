@@ -1,30 +1,14 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿namespace ArchivesDirectoryService;
 
-namespace ArchivesDirectoryService;
-
-[DynamoDBTable("archives")]
-public class Archive
+public sealed class Archive
 {
-    [DynamoDBHashKey("user_id")]
-    public string UserId { get; set; }
-
-    [DynamoDBRangeKey("archive_id")]
-    public string ArchiveId { get; set; }
-
-    [DynamoDBProperty("content_url")]
-    public string? ContentUrl { get; set; }
-
-    [DynamoDBProperty("name")]
-    public string Name { get; set; }
-
-    [DynamoDBProperty("parent")]
-    public string? Parent { get; set; }
-
-    [DynamoDBProperty("type")]
-    public ArchiveType Type { get; set; }
-
-    [DynamoDBProperty("favorite")]
-    public bool Favorite { get; set; }
+    public string UserId { get; init; } = default!;
+    public string ArchiveId { get; init; } = default!;
+    public string? ContentUrl { get; init; }
+    public string Name { get; init; } = default!;
+    public string? Parent { get; init; }
+    public ArchiveType Type { get; init; }
+    public bool Favorite { get; init; }
 }
 
 public enum ArchiveType
